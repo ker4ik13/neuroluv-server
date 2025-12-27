@@ -1,0 +1,146 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id                     Int                     @id @default(autoincrement())
+    telegramId             BigInt                  @unique @map("telegram_id")
+    firstName              String                  @map("first_name")
+    lastName               String?                 @map("last_name")
+    userName               String?                 @unique @map("user_name")
+    languageCode           String?                 @map("language_code")
+    authDate               DateTime                @default(now()) @map("auth_date")
+    lastSeenAt             DateTime                @map("last_seen_at")
+    role                   UserRole                @default(USER)
+    balance                Float                   @default(0.0)
+    // Relations
+    favoritePhotos         Photo[]                 @relation("favorite_photos")
+    favoriteAlbums         Album[]                 @relation("favorite_albums")
+    notificationRecipients NotificationRecipient[]
+
+    @@index([userName])
+    @@index([telegramId])
+    @@map("users")
+}
+
+model Photo {
+    id                    Int       @id @default(autoincrement())
+    name                  String
+    slug                  String
+    ext                   String
+    title                 String
+    description           String?
+    prompt                String
+    createdAt             DateTime  @default(now()) @map("created_at")
+    updatedAt             DateTime  @updatedAt @map("updated_at")
+    publishedAt           DateTime? @map("published_at")
+    isPublished           Boolean   @default(false) @map("is_published")
+    // Relations
+    albums                Album[]   @relation("album_photos")
+    styles                Style[]   @relation("photo_styles")
+    usersAddedToFavorites User[]    @relation("favorite_photos")
+
+    @@map("photos")
+}
+
+model Album {
+    id                    Int        @id @default(autoincrement())
+    title                 String
+    slug                  String
+    description           String?
+    createdAt             DateTime   @default(now()) @map("created_at")
+    updatedAt             DateTime   @updatedAt @map("updated_at")
+    publishedAt           DateTime?  @map("published_at")
+    isPublished           Boolean    @default(false) @map("is_published")
+    isFree                Boolean?   @default(false) @map("is_free")
+    // Relations
+    photos                Photo[]    @relation("album_photos")
+    usersAddedToFavorites User[]     @relation("favorite_albums")
+    albumCover            AlbumCover @relation(fields: [albumCoverId], references: [id])
+    albumCoverId          Int        @unique @map("album_cover_id")
+
+    @@index([title])
+    @@map("albums")
+}
+
+model Style {
+    id          Int      @id @default(autoincrement())
+    name        String
+    nameCaption String
+    type        String
+    typeCaption String
+    // Relations
+    photos      Photo[]  @relation("photo_styles")
+    createdAt   DateTime @default(now()) @map("created_at")
+    updatedAt   DateTime @updatedAt @map("updated_at")
+
+    @@map("styles")
+}
+
+model AlbumCover {
+    id        Int      @id @default(autoincrement())
+    name      String
+    ext       String
+    title     String
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+    // Relations
+    album     Album?   @relation()
+
+    @@map("album_covers")
+}
+
+model Notification {
+    id         String                  @id @default(cuid())
+    type       NotificationType        @default(INFO)
+    title      String
+    body       String?
+    data       Json? // любые доп. данные: ссылки, ids сущностей и т.д.
+    createdAt  DateTime                @default(now()) @map("created_at")
+    seenAt     DateTime?               @map("seen_at")
+    expiresAt  DateTime?               @map("expires_at")
+    // Relations
+    recipients NotificationRecipient[]
+
+    @@index([createdAt])
+    @@map("notifications")
+}
+
+model NotificationRecipient {
+    id             Int          @id @default(autoincrement())
+    notificationId String       @map("notification_id")
+    readAt         DateTime?    @map("read_at")
+    createdAt      DateTime     @default(now()) @map("created_at")
+    // Relations
+    notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+    user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId         Int
+
+    @@unique([notificationId, userId])
+    @@index([userId, readAt])
+    @@index([userId, createdAt])
+    @@map("notification_recipients")
+}
+
+enum NotificationType {
+    INFO
+    WARNING
+    SUCCESS
+    ERROR
+    SYSTEM
+
+    @@map("notification_types")
+}
+
+enum UserRole {
+    USER
+    MODERATOR
+    ADMIN
+
+    @@map("user_roles")
+}
