@@ -1,23 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
-  IsArray,
-  IsDate,
-  IsEnum,
   IsInt,
   IsNotEmpty,
-  IsNumber,
+  IsOptional,
   IsPositive,
   IsString,
 } from 'class-validator';
-import { UserRoles } from '../entities/user-roles.enum';
-import { Photo } from '@/crud/photos';
 
 export class CreateUserDto {
   @ApiProperty()
-  @IsNumber()
-  @IsNotEmpty()
   @IsInt()
   @IsPositive()
+  @IsNotEmpty()
+  @Type(() => Number)
   telegramId: number;
 
   @ApiProperty()
@@ -25,45 +21,18 @@ export class CreateUserDto {
   @IsNotEmpty()
   firstName: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsString()
+  @IsOptional()
   lastName?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsString()
-  userName: string;
+  @IsOptional()
+  userName?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsString()
+  @IsOptional()
   languageCode?: string;
-
-  @ApiProperty()
-  @IsDate()
-  authDate: Date;
-
-  @ApiProperty()
-  @IsDate()
-  lastSeenAt: Date;
-
-  @ApiProperty()
-  @IsString()
-  @IsEnum(UserRoles)
-  role: UserRoles;
-
-  @ApiProperty()
-  @IsNumber()
-  balance: number;
-
-  // TODO: доделать тип с фото
-  @ApiProperty()
-  @IsArray()
-  favoritePhotos: Photo[];
-
-  @ApiProperty()
-  @IsArray()
-  favoriteAlbums: string[];
-
-  @ApiProperty()
-  @IsArray()
-  notificationRecipients: string[];
 }

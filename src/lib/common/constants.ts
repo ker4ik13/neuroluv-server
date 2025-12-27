@@ -1,6 +1,12 @@
 // Global constants
 export const CHATS = [785206267];
 
+// Order для пагинации
+export enum Order {
+  ASC = 'asc',
+  DESC = 'desc',
+}
+
 export const ENV_NAMES = {
   DATABASE_URL: 'DATABASE_URL',
   TELEGRAM_BOT_TOKEN: 'TELEGRAM_BOT_TOKEN',
