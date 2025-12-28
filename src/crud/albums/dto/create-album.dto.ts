@@ -1,5 +1,5 @@
-import type { Photo } from '@/crud/photos';
-import type { User } from '@/crud/users';
+import type { PhotoEntity } from '@/crud/photos';
+import { UserEntity } from '@/crud/users';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsArray,
@@ -48,11 +48,11 @@ export class CreateAlbumDto {
 
   @ApiProperty()
   @IsArray()
-  photos: Photo[];
+  photos: PhotoEntity[];
 
   @ApiProperty()
   @IsArray()
-  usersAddedToFavorites: User[];
+  usersAddedToFavorites: UserEntity[];
 
   // TODO: доделать
   @ApiProperty()

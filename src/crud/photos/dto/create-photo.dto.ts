@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import type { Album, Style, User } from '@prisma/client';
 import { IsArray, IsBoolean, IsDate, IsString } from 'class-validator';
 
 export class CreatePhotoDto {
@@ -40,13 +41,13 @@ export class CreatePhotoDto {
 
   @ApiProperty()
   @IsArray()
-  albums: string[];
+  albums: Album[];
 
   @ApiProperty()
   @IsArray()
-  styles: string[];
+  styles: Style[];
 
   @ApiProperty()
   @IsArray()
-  usersAddedToFavorites: string[];
+  usersAddedToFavorites: User[];
 }

@@ -6,5 +6,5 @@ export class UpdateAlbumDto extends PartialType(CreateAlbumDto) {
   @ApiProperty()
   @IsNumber()
   @IsInt()
-  id: string;
+  id?: string;
 }

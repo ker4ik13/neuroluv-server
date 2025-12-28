@@ -16,6 +16,7 @@ model User {
     languageCode           String?                 @map("language_code")
     authDate               DateTime                @default(now()) @map("auth_date")
     lastSeenAt             DateTime                @map("last_seen_at")
+    updatedAt              DateTime                @updatedAt
     role                   UserRole                @default(USER)
     balance                Float                   @default(0.0)
     // Relations

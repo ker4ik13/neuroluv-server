@@ -1,4 +1,4 @@
-import type { Album } from '@/crud/albums';
+import type { AlbumEntity } from '@/crud/albums';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDate, IsNotEmpty, IsObject, IsString } from 'class-validator';
 
@@ -27,5 +27,5 @@ export class CreateAlbumCoverDto {
 
   @ApiProperty()
   @IsObject()
-  album: Album;
+  album: AlbumEntity;
 }

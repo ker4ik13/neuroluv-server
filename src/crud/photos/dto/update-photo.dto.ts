@@ -6,5 +6,5 @@ export class UpdatePhotoDto extends PartialType(CreatePhotoDto) {
   @ApiProperty()
   @IsInt()
   @IsNumber()
-  id: string;
+  id?: string;
 }

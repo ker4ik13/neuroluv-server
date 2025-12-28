@@ -4,6 +4,12 @@ import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './common/filters';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
+// Serialize telegram id (BigInt)
+(BigInt.prototype as any).toJSON = function () {
+  const int = Number.parseInt(this.toString());
+  return int ?? this.toString();
+};
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
