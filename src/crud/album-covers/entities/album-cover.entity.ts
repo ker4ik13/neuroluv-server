@@ -1,10 +1,25 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CreateAlbumCoverDto } from '../dto/create-album-cover.dto';
-import { IsInt, IsNumber } from 'class-validator';
+import { AlbumEntity } from '@/crud/albums/entities/album.entity';
 
-export class AlbumCoverEntity extends CreateAlbumCoverDto {
+export class AlbumCoverEntity {
   @ApiProperty()
-  @IsNumber()
-  @IsInt()
-  id: string;
+  id: number;
+
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty()
+  ext: string;
+
+  @ApiProperty()
+  title: string;
+
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
+
+  @ApiProperty({ type: () => AlbumEntity })
+  album: AlbumEntity;
 }

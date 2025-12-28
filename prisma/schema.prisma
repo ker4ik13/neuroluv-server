@@ -8,21 +8,23 @@ datasource db {
 }
 
 model User {
-    id                     Int                     @id @default(autoincrement())
-    telegramId             BigInt                  @unique @map("telegram_id")
-    firstName              String                  @map("first_name")
-    lastName               String?                 @map("last_name")
-    userName               String?                 @unique @map("user_name")
-    languageCode           String?                 @map("language_code")
-    authDate               DateTime                @default(now()) @map("auth_date")
-    lastSeenAt             DateTime                @map("last_seen_at")
-    updatedAt              DateTime                @updatedAt
-    role                   UserRole                @default(USER)
-    balance                Float                   @default(0.0)
+    id                         Int                     @id @default(autoincrement())
+    telegramId                 BigInt                  @unique @map("telegram_id")
+    firstName                  String                  @map("first_name")
+    lastName                   String?                 @map("last_name")
+    userName                   String?                 @unique @map("user_name")
+    languageCode               String?                 @map("language_code")
+    authDate                   DateTime                @default(now()) @map("auth_date")
+    lastSeenAt                 DateTime                @map("last_seen_at")
+    updatedAt                  DateTime                @updatedAt
+    role                       UserRole                @default(USER)
+    balance                    Float                   @default(0.0)
     // Relations
-    favoritePhotos         Photo[]                 @relation("favorite_photos")
-    favoriteAlbums         Album[]                 @relation("favorite_albums")
-    notificationRecipients NotificationRecipient[]
+    favoritePhotos             Photo[]                 @relation("favorite_photos")
+    favoriteAlbums             Album[]                 @relation("favorite_albums")
+    favoritePrompts            Prompt[]                @relation("favorite_prompts")
+    favoritePromptsCollections PromptsCollection[]     @relation("favorite_prompts_collections")
+    notificationRecipients     NotificationRecipient[]
 
     @@index([userName])
     @@index([telegramId])
@@ -30,43 +32,100 @@ model User {
 }
 
 model Photo {
-    id                    Int       @id @default(autoincrement())
+    id                    Int           @id @default(autoincrement())
     name                  String
     slug                  String
     ext                   String
     title                 String
     description           String?
     prompt                String
-    createdAt             DateTime  @default(now()) @map("created_at")
-    updatedAt             DateTime  @updatedAt @map("updated_at")
-    publishedAt           DateTime? @map("published_at")
-    isPublished           Boolean   @default(false) @map("is_published")
+    createdAt             DateTime      @default(now()) @map("created_at")
+    updatedAt             DateTime      @updatedAt @map("updated_at")
+    publishedAt           DateTime?     @map("published_at")
+    isPublished           Boolean       @default(false) @map("is_published")
+    isFree                Boolean       @default(true) @map("is_free")
     // Relations
-    albums                Album[]   @relation("album_photos")
-    styles                Style[]   @relation("photo_styles")
-    usersAddedToFavorites User[]    @relation("favorite_photos")
+    albums                Album[]       @relation("album_photos")
+    styles                Style[]       @relation("photo_styles")
+    usersAddedToFavorites User[]        @relation("favorite_photos")
+    neuralNetwork         NeuralNetwork @relation(fields: [neuralNetworkId], references: [id])
+    neuralNetworkId       Int           @unique @map("neural_network_id")
 
     @@map("photos")
 }
 
 model Album {
-    id                    Int        @id @default(autoincrement())
+    id                    Int           @id @default(autoincrement())
     title                 String
     slug                  String
     description           String?
-    createdAt             DateTime   @default(now()) @map("created_at")
-    updatedAt             DateTime   @updatedAt @map("updated_at")
-    publishedAt           DateTime?  @map("published_at")
-    isPublished           Boolean    @default(false) @map("is_published")
-    isFree                Boolean?   @default(false) @map("is_free")
+    createdAt             DateTime      @default(now()) @map("created_at")
+    updatedAt             DateTime      @updatedAt @map("updated_at")
+    publishedAt           DateTime?     @map("published_at")
+    isPublished           Boolean       @default(false) @map("is_published")
+    isFree                Boolean       @default(true) @map("is_free")
+    hasPaidContent        Boolean       @default(false) @map("has_paid_content")
     // Relations
-    photos                Photo[]    @relation("album_photos")
-    usersAddedToFavorites User[]     @relation("favorite_albums")
-    albumCover            AlbumCover @relation(fields: [albumCoverId], references: [id])
-    albumCoverId          Int        @unique @map("album_cover_id")
+    photos                Photo[]       @relation("album_photos")
+    usersAddedToFavorites User[]        @relation("favorite_albums")
+    albumCover            AlbumCover    @relation(fields: [albumCoverId], references: [id])
+    albumCoverId          Int           @unique @map("album_cover_id")
+    neuralNetwork         NeuralNetwork @relation(fields: [neuralNetworkId], references: [id])
+    neuralNetworkId       Int           @unique @map("neural_network_id")
 
     @@index([title])
     @@map("albums")
+}
+
+model Prompt {
+    id                    Int           @id @default(autoincrement())
+    name                  String
+    slug                  String
+    description           String
+    value                 String
+    createdAt             DateTime      @default(now()) @map("created_at")
+    updatedAt             DateTime      @updatedAt @map("updated_at")
+    publishedAt           DateTime?     @map("published_at")
+    isPublished           Boolean       @default(false) @map("is_published")
+    // Relations
+    usersAddedToFavorites User[]        @relation("favorite_prompts")
+    neuralNetwork         NeuralNetwork @relation(fields: [neuralNetworkId], references: [id])
+    neuralNetworkId       Int           @unique @map("neural_network_id")
+
+    @@map("prompts")
+}
+
+model PromptsCollection {
+    id                    Int           @id @default(autoincrement())
+    name                  String
+    slug                  String
+    description           String
+    createdAt             DateTime      @default(now()) @map("created_at")
+    updatedAt             DateTime      @updatedAt @map("updated_at")
+    publishedAt           DateTime?     @map("published_at")
+    isPublished           Boolean       @default(false) @map("is_published")
+    isFree                Boolean       @default(true) @map("is_free")
+    hasPaidContent        Boolean       @default(false) @map("has_paid_content")
+    // Relations
+    usersAddedToFavorites User[]        @relation("favorite_prompts_collections")
+    neuralNetwork         NeuralNetwork @relation(fields: [neuralNetworkId], references: [id])
+    neuralNetworkId       Int           @unique @map("neural_network_id")
+
+    @@map("propmts_collections")
+}
+
+model NeuralNetwork {
+    id                Int                 @id @default(autoincrement())
+    name              String
+    slug              String
+    version           String
+    // Relations
+    photos            Photo[]
+    albums            Album[]
+    prompts           Prompt[]
+    promptsCollection PromptsCollection[]
+
+    @@map("neural_networks")
 }
 
 model Style {

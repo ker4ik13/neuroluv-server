@@ -45,6 +45,8 @@ export class UsersService {
         favoriteAlbums: true,
         favoritePhotos: true,
         notificationRecipients: true,
+        favoritePrompts: true,
+        favoritePromptsCollections: true,
       },
     });
   }
@@ -140,6 +142,8 @@ export class UsersService {
           favoriteAlbums: true,
           favoritePhotos: true,
           notificationRecipients: true,
+          favoritePrompts: true,
+          favoritePromptsCollections: true,
         },
       });
 
@@ -175,6 +179,8 @@ export class UsersService {
         favoriteAlbums: true,
         favoritePhotos: true,
         notificationRecipients: true,
+        favoritePrompts: true,
+        favoritePromptsCollections: true,
       },
     });
 

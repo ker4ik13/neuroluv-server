@@ -1,5 +1,7 @@
-import { AlbumEntity } from '@/crud/albums';
-import { PhotoEntity } from '@/crud/photos';
+import { AlbumEntity } from '@/crud/albums/entities/album.entity';
+import { PhotoEntity } from '@/crud/photos/entities/photo.entity';
+import { PromptEntity } from '@/crud/prompts/entities/prompt.entity';
+import { PromptsCollectionEntity } from '@/crud/prompts-collections/entities/prompts-collection.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
 
@@ -7,27 +9,20 @@ export class UserEntity {
   @ApiProperty()
   id: number;
 
-  @ApiProperty({
-    description: 'Telegram user identifier',
-    type: String,
-    example: '123456789',
-  })
+  @ApiProperty()
   telegramId: bigint;
 
   @ApiProperty()
   firstName: string;
 
   @ApiProperty({ required: false })
-  lastName?: string | null;
+  lastName?: string;
 
   @ApiProperty({ required: false })
-  userName?: string | null;
+  userName?: string;
 
   @ApiProperty({ required: false })
-  languageCode?: string | null;
-
-  @ApiProperty({ enum: UserRole, enumName: 'UserRole' })
-  role: UserRole;
+  languageCode?: string;
 
   @ApiProperty()
   authDate: Date;
@@ -35,14 +30,23 @@ export class UserEntity {
   @ApiProperty()
   lastSeenAt: Date;
 
+  @ApiProperty({ enum: UserRole, enumName: 'UserRole' })
+  role: UserRole;
+
   @ApiProperty()
   balance: number;
 
-  @ApiProperty({ type: PhotoEntity, isArray: true })
+  @ApiProperty({ type: () => PhotoEntity, isArray: true })
   favoritePhotos: PhotoEntity[];
 
-  @ApiProperty({ type: AlbumEntity, isArray: true })
+  @ApiProperty({ type: () => AlbumEntity, isArray: true })
   favoriteAlbums: AlbumEntity[];
+
+  @ApiProperty({ type: () => PromptEntity, isArray: true })
+  favoritePromts: PromptEntity[];
+
+  @ApiProperty({ type: () => PromptsCollectionEntity, isArray: true })
+  favoritePromtsCollections: PromptsCollectionEntity[];
 
   @ApiProperty({ isArray: true })
   notificationRecipients: string[];

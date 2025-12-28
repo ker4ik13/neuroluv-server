@@ -1,10 +1,4 @@
-import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { CreateAlbumCoverDto } from './create-album-cover.dto';
-import { IsInt, IsNumber } from 'class-validator';
+import { PartialType } from '@nestjs/swagger';
+import { AlbumCoverEntity } from '../entities/album-cover.entity';
 
-export class UpdateAlbumCoverDto extends PartialType(CreateAlbumCoverDto) {
-  @ApiProperty()
-  @IsNumber()
-  @IsInt()
-  id?: string;
-}
+export class UpdateAlbumCoverDto extends PartialType(AlbumCoverEntity) {}

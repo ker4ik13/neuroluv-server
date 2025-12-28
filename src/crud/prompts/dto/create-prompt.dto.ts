@@ -1,18 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBoolean,
-  IsDate,
   IsInt,
   IsNotEmpty,
+  IsOptional,
   IsPositive,
   IsString,
 } from 'class-validator';
 
-export class CreateAlbumDto {
+export class CreatePromptDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  title: string;
+  name: string;
 
   @ApiProperty()
   @IsString()
@@ -21,30 +21,18 @@ export class CreateAlbumDto {
 
   @ApiProperty()
   @IsString()
-  description?: string;
+  @IsNotEmpty()
+  description: string;
 
   @ApiProperty()
-  @IsDate()
-  publishedAt?: Date;
+  @IsString()
+  @IsNotEmpty()
+  value: string;
 
-  @ApiProperty({
-    default: false,
-  })
+  @ApiProperty()
   @IsBoolean()
+  @IsOptional()
   isPublished?: boolean;
-
-  @ApiProperty()
-  @IsBoolean()
-  isFree: boolean;
-
-  @ApiProperty()
-  @IsBoolean()
-  hasPaidContent: boolean;
-
-  @ApiProperty()
-  @IsInt()
-  @IsPositive()
-  albumCoverId: number;
 
   @ApiProperty()
   @IsInt()
