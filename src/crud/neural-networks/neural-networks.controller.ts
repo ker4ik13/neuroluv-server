@@ -6,10 +6,13 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { NeuralNetworksService } from './neural-networks.service';
 import { CreateNeuralNetworkDto } from './dto/create-neural-network.dto';
 import { UpdateNeuralNetworkDto } from './dto/update-neural-network.dto';
+import type { NeuralNetwork } from '@prisma/client';
+import { PageOptionsDto, type PageDto } from '@/lib/utils/pagination';
 
 @Controller('neural-networks')
 export class NeuralNetworksController {
@@ -21,8 +24,10 @@ export class NeuralNetworksController {
   }
 
   @Get()
-  findAll() {
-    return this.neuralNetworksService.findAll();
+  findAll(
+    @Query() pageOptions: PageOptionsDto,
+  ): Promise<PageDto<NeuralNetwork>> {
+    return this.neuralNetworksService.findAll(new PageOptionsDto(pageOptions));
   }
 
   @Get(':id')

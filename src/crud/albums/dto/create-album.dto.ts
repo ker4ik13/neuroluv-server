@@ -4,6 +4,7 @@ import {
   IsDate,
   IsInt,
   IsNotEmpty,
+  IsOptional,
   IsPositive,
   IsString,
 } from 'class-validator';
@@ -49,5 +50,6 @@ export class CreateAlbumDto {
   @ApiProperty()
   @IsInt()
   @IsPositive()
+  @IsOptional()
   neuralNetworkId: number;
 }

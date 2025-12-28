@@ -47,5 +47,6 @@ export class CreatePromptsCollectionDto {
   @ApiProperty()
   @IsInt()
   @IsPositive()
-  neuralNetworkId: number;
+  @IsOptional()
+  neuralNetworkId?: number;
 }

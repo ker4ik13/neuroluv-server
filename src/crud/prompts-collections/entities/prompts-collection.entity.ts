@@ -41,5 +41,5 @@ export class PromptsCollectionEntity {
   @ApiProperty({
     type: () => NeuralNetworkEntity,
   })
-  neuralNetwork: NeuralNetworkEntity;
+  neuralNetwork?: NeuralNetworkEntity;
 }

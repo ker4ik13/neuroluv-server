@@ -2,6 +2,7 @@ import type { CreateUserDto } from './dto/create-user.dto';
 import type { UpdateUserDto } from './dto/update-user.dto';
 import { type Prisma, type User, UserRole } from '@prisma/client';
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -20,6 +21,24 @@ export class UsersService {
   async create(createUserDto: CreateUserDto): Promise<User> {
     const now = new Date().toISOString();
     const telegramId = BigInt(createUserDto.telegramId);
+
+    // Если пользователь уже зарегистрирован
+    const isAlreadyExist = await this.database.user.findFirst({
+      where: {
+        OR: [
+          {
+            telegramId,
+          },
+          {
+            userName: createUserDto.userName,
+          },
+        ],
+      },
+    });
+
+    if (isAlreadyExist) {
+      throw new BadRequestException('User already exist');
+    }
 
     return this.database.user.upsert({
       where: { telegramId },
@@ -51,10 +70,11 @@ export class UsersService {
     });
   }
 
-  async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<User>> {
-    const search = pageOptionsDto.search?.trim();
+  async findAll(pageOptions: PageOptionsDto): Promise<PageDto<User>> {
+    const search = pageOptions.search?.trim();
     let result: User[] = [];
 
+    // Фильтры
     const whereClause: Prisma.UserWhereInput | undefined = search
       ? {
           OR: [
@@ -81,7 +101,6 @@ export class UsersService {
                 mode: 'insensitive',
               },
             },
-            // TODO: проверить этот поиск
             ...(() => {
               const [firstName, lastName] = search.split(/\s+/, 2);
 
@@ -114,10 +133,10 @@ export class UsersService {
 
     result = await this.database.user.findMany({
       where: whereClause,
-      skip: pageOptionsDto.skip,
-      take: pageOptionsDto.take,
+      skip: pageOptions.skip,
+      take: pageOptions.take,
       orderBy: {
-        id: pageOptionsDto.order,
+        id: pageOptions.order,
       },
       include: {
         _count: true,
@@ -128,7 +147,7 @@ export class UsersService {
       where: whereClause,
     });
 
-    return generateMetaPage<User>(result, allUsersCount, pageOptionsDto);
+    return generateMetaPage<User>(result, allUsersCount, pageOptions);
   }
 
   async findOne(telegramId: number): Promise<User> {
@@ -148,13 +167,7 @@ export class UsersService {
       });
 
       if (!user) {
-        throw new NotFoundException(
-          {},
-          {
-            cause: 'User not found',
-            description: 'User with same telegramId not found',
-          },
-        );
+        throw new NotFoundException('User not found');
       }
 
       return user;
@@ -185,13 +198,7 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException(
-        {},
-        {
-          cause: 'User not found',
-          description: 'User with same telegramId not found',
-        },
-      );
+      throw new NotFoundException('User not found');
     }
 
     return user;
@@ -205,13 +212,7 @@ export class UsersService {
     });
 
     if (!deletedUser) {
-      throw new NotFoundException(
-        {},
-        {
-          cause: 'User not found',
-          description: 'User with same telegramId not found',
-        },
-      );
+      throw new NotFoundException('User not found');
     }
 
     return deletedUser;

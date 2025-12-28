@@ -1,4 +1,6 @@
 import { PartialType } from '@nestjs/swagger';
-import { NeuralNetworkEntity } from '../entities/neural-network.entity';
+import { CreateNeuralNetworkDto } from './create-neural-network.dto';
 
-export class UpdateNeuralNetworkDto extends PartialType(NeuralNetworkEntity) {}
+export class UpdateNeuralNetworkDto extends PartialType(
+  CreateNeuralNetworkDto,
+) {}

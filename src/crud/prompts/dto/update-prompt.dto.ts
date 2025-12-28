@@ -1,4 +1,4 @@
 import { PartialType } from '@nestjs/swagger';
-import { PromptEntity } from '../entities/prompt.entity';
+import { CreatePromptDto } from './create-prompt.dto';
 
-export class UpdatePromptDto extends PartialType(PromptEntity) {}
+export class UpdatePromptDto extends PartialType(CreatePromptDto) {}

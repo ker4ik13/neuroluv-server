@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsInt,
   IsNotEmpty,
   IsOptional,
@@ -35,4 +36,32 @@ export class CreateUserDto {
   @IsString()
   @IsOptional()
   languageCode?: string;
+
+  @ApiProperty({ required: false, type: [Number] })
+  @IsArray()
+  @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @IsOptional()
+  favoritePhoto?: number[];
+
+  @ApiProperty({ required: false, type: [Number] })
+  @IsArray()
+  @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @IsOptional()
+  favoriteAlbum?: number[];
+
+  @ApiProperty({ required: false, type: [Number] })
+  @IsArray()
+  @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @IsOptional()
+  favoritePrompt?: number[];
+
+  @ApiProperty({ required: false, type: [Number] })
+  @IsArray()
+  @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @IsOptional()
+  favoritePromptsCollection?: number[];
 }

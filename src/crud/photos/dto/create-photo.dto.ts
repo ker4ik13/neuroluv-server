@@ -6,6 +6,7 @@ import {
   IsBoolean,
   IsDate,
   IsInt,
+  IsOptional,
   IsPositive,
   IsString,
 } from 'class-validator';
@@ -54,5 +55,6 @@ export class CreatePhotoDto {
   @ApiProperty()
   @IsInt()
   @IsPositive()
-  neuralNetworkId: number;
+  @IsOptional()
+  neuralNetworkId?: number;
 }

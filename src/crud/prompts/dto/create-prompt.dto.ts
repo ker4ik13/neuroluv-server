@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsBoolean,
   IsInt,
   IsNotEmpty,
@@ -34,8 +36,17 @@ export class CreatePromptDto {
   @IsOptional()
   isPublished?: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, type: [Number] })
+  @IsArray()
+  @Type(() => Number)
+  @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @IsOptional()
+  usersAddedToFavorites?: number[];
+
+  @ApiProperty({ required: true, type: Number })
   @IsInt()
   @IsPositive()
-  neuralNetworkId: number;
+  @IsOptional()
+  neuralNetworkId?: number;
 }

@@ -51,5 +51,5 @@ export class PhotoEntity {
   usersAddedToFavorites: UserEntity[];
 
   @ApiProperty({ type: () => NeuralNetworkEntity })
-  neuralNetwork: NeuralNetworkEntity;
+  neuralNetwork?: NeuralNetworkEntity;
 }
