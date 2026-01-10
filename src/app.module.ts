@@ -9,6 +9,8 @@ import { AlbumCoversModule } from './crud/album-covers';
 import { NeuralNetworksModule } from './crud/neural-networks';
 import { PromptsModule } from './crud/prompts';
 import { PromptsCollectionsModule } from './crud/prompts-collections';
+import { GeminiModule } from './crud/gemini';
+import { AuthModule } from './crud/auth';
 
 @Module({
   imports: [
@@ -20,7 +22,7 @@ import { PromptsCollectionsModule } from './crud/prompts-collections';
     //   driver: ApolloDriver,
     //   autoSchemaFile: true,
     //   sortSchema: true,
-    //   playground: isDev(new ConfigService()),
+    //   playground: isDev(),
     // }),
     DatabaseModule,
     UsersModule,
@@ -31,6 +33,8 @@ import { PromptsCollectionsModule } from './crud/prompts-collections';
     NeuralNetworksModule,
     PromptsModule,
     PromptsCollectionsModule,
+    GeminiModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

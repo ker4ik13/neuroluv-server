@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './common/filters';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import cookieParser from 'cookie-parser';
 
 // Serialize telegram id (BigInt)
 (BigInt.prototype as any).toJSON = function () {
@@ -12,11 +13,12 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.use(cookieParser());
 
   app.setGlobalPrefix('api');
   app.enableCors({
     credentials: true,
-    origin: '*',
+    origin: [process.env.WEBAPP_ORIGIN!],
     methods: ['GET', 'POST', 'DELETE', 'PATCH'],
   });
 

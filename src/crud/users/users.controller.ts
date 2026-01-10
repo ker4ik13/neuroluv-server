@@ -9,6 +9,8 @@ import {
   Query,
   UsePipes,
   ValidationPipe,
+  UseGuards,
+  ForbiddenException,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -25,12 +27,17 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PageDto, PageMetaDto, PageOptionsDto } from '@/lib/utils/pagination';
-import { User } from '@prisma/client';
+import { User, UserRole } from '@prisma/client';
 import { Order } from '@/lib/common';
 import { UserEntity } from './entities/user.entity';
+import { CurrentUser, Roles } from '@/common/decorators';
+import { JwtAuthGuard, RolesGuard } from '@/common/guards';
+import { UserRoles } from './entities/user-roles.enum';
+import type { JwtPayload } from '@/lib/types';
 
 @ApiTags('Users')
 @ApiExtraModels(PageDto, PageMetaDto, UserEntity)
+@UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -43,7 +50,7 @@ export class UsersController {
   @ApiCreatedResponse({ type: UserEntity })
   @UsePipes(new ValidationPipe({ transform: true }))
   create(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.usersService.create(createUserDto);
+    return this.usersService.upsert(createUserDto);
   }
 
   @Get()
@@ -90,6 +97,8 @@ export class UsersController {
     },
   })
   @UsePipes(new ValidationPipe({ transform: true }))
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.ADMIN)
   async findAll(
     @Query() pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<User>> {
@@ -104,8 +113,15 @@ export class UsersController {
     description: 'Telegram user id',
   })
   @ApiOkResponse({ type: UserEntity })
-  findOne(@Param('telegramId') telegramId: string): Promise<User> {
-    return this.usersService.findOne(+telegramId);
+  findOne(
+    @Param('telegramId') telegramId: string,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<User> {
+    if (user.role === UserRole.ADMIN || user.telegramId === telegramId) {
+      return this.usersService.findOne(+telegramId);
+    }
+
+    throw new ForbiddenException('В доступе отказано');
   }
 
   @Patch(':telegramId')
@@ -121,8 +137,13 @@ export class UsersController {
   update(
     @Param('telegramId') telegramId: string,
     @Body() updateUserDto: UpdateUserDto,
+    @CurrentUser() user: JwtPayload,
   ): Promise<User> {
-    return this.usersService.update(+telegramId, updateUserDto);
+    if (user.role === UserRole.ADMIN || user.telegramId === telegramId) {
+      return this.usersService.update(+telegramId, updateUserDto);
+    }
+
+    throw new ForbiddenException('В доступе отказано');
   }
 
   @Delete(':telegramId')
@@ -132,6 +153,8 @@ export class UsersController {
     type: Number,
     description: 'Telegram user id',
   })
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.ADMIN)
   remove(@Param('telegramId') telegramId: string): Promise<User | null> {
     return this.usersService.remove(+telegramId);
   }

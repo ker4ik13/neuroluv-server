@@ -2,7 +2,6 @@ import type { CreateUserDto } from './dto/create-user.dto';
 import type { UpdateUserDto } from './dto/update-user.dto';
 import { type Prisma, type User, UserRole } from '@prisma/client';
 import {
-  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -18,27 +17,9 @@ import {
 export class UsersService {
   constructor(private readonly database: DatabaseService) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async upsert(createUserDto: CreateUserDto): Promise<User> {
     const now = new Date().toISOString();
     const telegramId = BigInt(createUserDto.telegramId);
-
-    // Если пользователь уже зарегистрирован
-    const isAlreadyExist = await this.database.user.findFirst({
-      where: {
-        OR: [
-          {
-            telegramId,
-          },
-          {
-            userName: createUserDto.userName,
-          },
-        ],
-      },
-    });
-
-    if (isAlreadyExist) {
-      throw new BadRequestException('User already exist');
-    }
 
     return this.database.user.upsert({
       where: { telegramId },

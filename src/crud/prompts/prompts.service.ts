@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import type { CreatePromptDto } from './dto/create-prompt.dto';
 import type { UpdatePromptDto } from './dto/update-prompt.dto';
 import type { Prisma, Prompt } from '@prisma/client';
@@ -14,23 +18,27 @@ export class PromptsService {
   constructor(private readonly database: DatabaseService) {}
 
   async create(createPromptDto: CreatePromptDto): Promise<Prompt> {
-    const { usersAddedToFavorites, neuralNetworkId, ...promptData } =
-      createPromptDto;
+    try {
+      const { usersAddedToFavorites, neuralNetworkId, ...promptData } =
+        createPromptDto;
 
-    return await this.database.prompt.create({
-      data: {
-        ...promptData,
-        neuralNetwork: { connect: { id: neuralNetworkId } },
-        ...(usersAddedToFavorites && {
-          usersAddedToFavorites: {
-            connect: usersAddedToFavorites.map((id) => ({ id })),
-          },
-        }),
-      },
-      include: {
-        neuralNetwork: true,
-      },
-    });
+      return await this.database.prompt.create({
+        data: {
+          ...promptData,
+          neuralNetwork: { connect: { id: neuralNetworkId } },
+          ...(usersAddedToFavorites && {
+            usersAddedToFavorites: {
+              connect: usersAddedToFavorites.map((id) => ({ id })),
+            },
+          }),
+        },
+        include: {
+          neuralNetwork: true,
+        },
+      });
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
   }
 
   async findAll(pageOptions: PageOptionsDto): Promise<PageDto<Prompt>> {
