@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsBoolean,
   IsDate,
   IsInt,
@@ -25,24 +27,41 @@ export class CreatePromptsCollectionDto {
   @IsNotEmpty()
   description: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, default: false })
   @IsBoolean()
+  @IsOptional()
   isPublished: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsDate()
   @IsOptional()
   publishedAt?: Date;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, default: true })
   @IsBoolean()
   @IsOptional()
   isFree: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, default: false })
   @IsBoolean()
   @IsOptional()
   hasPaidContent: boolean;
+
+  @ApiProperty({ required: false, type: [Number] })
+  @IsArray()
+  @Type(() => Number)
+  @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @IsOptional()
+  usersAddedToFavorites?: number[];
+
+  @ApiProperty({ required: false, type: [Number] })
+  @IsArray()
+  @Type(() => Number)
+  @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @IsOptional()
+  prompts?: number[];
 
   @ApiProperty()
   @IsInt()

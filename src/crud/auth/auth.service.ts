@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users';
 import { parseTgUser } from '@/lib/utils';
@@ -118,5 +118,27 @@ export class AuthService {
       where: { tokenHash: refreshHash, revokedAt: null },
       data: { revokedAt: new Date() },
     });
+  }
+
+  async deleteRevokedTokens() {
+    try {
+      const result = await this.databaseService.refreshToken.deleteMany({
+        where: {
+          revokedAt: {
+            not: null,
+          },
+        },
+      });
+
+      return {
+        ok: true,
+        count: result.count,
+      };
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Ошибка на стороне сервера',
+        error,
+      );
+    }
   }
 }

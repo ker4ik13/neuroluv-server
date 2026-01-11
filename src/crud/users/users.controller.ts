@@ -14,29 +14,22 @@ import {
 } from '@nestjs/common';
 import {
   ApiBody,
-  ApiCreatedResponse,
-  ApiExtraModels,
-  ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiQuery,
   ApiTags,
-  getSchemaPath,
 } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { PageDto, PageMetaDto, PageOptionsDto } from '@/lib/utils/pagination';
+import { PageDto, PageOptionsDto } from '@/lib/utils/pagination';
 import { User, UserRole } from '@prisma/client';
 import { Order } from '@/lib/common';
-import { UserEntity } from './entities/user.entity';
 import { CurrentUser, Roles } from '@/common/decorators';
 import { JwtAuthGuard, RolesGuard } from '@/common/guards';
-import { UserRoles } from './entities/user-roles.enum';
 import type { JwtPayload } from '@/lib/types';
 
 @ApiTags('Users')
-@ApiExtraModels(PageDto, PageMetaDto, UserEntity)
 @UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UsersController {
@@ -47,7 +40,6 @@ export class UsersController {
   @ApiBody({
     type: CreateUserDto,
   })
-  @ApiCreatedResponse({ type: UserEntity })
   @UsePipes(new ValidationPipe({ transform: true }))
   create(@Body() createUserDto: CreateUserDto): Promise<User> {
     return this.usersService.upsert(createUserDto);
@@ -80,25 +72,9 @@ export class UsersController {
     description:
       'Поиск по telegramId, firstName/lastName, userName или полному имени',
   })
-  @ApiOkResponse({
-    description: 'Список пользователей с метаданными пагинации',
-    schema: {
-      allOf: [
-        { $ref: getSchemaPath(PageDto) },
-        {
-          properties: {
-            data: {
-              type: 'array',
-              items: { $ref: getSchemaPath(UserEntity) },
-            },
-          },
-        },
-      ],
-    },
-  })
   @UsePipes(new ValidationPipe({ transform: true }))
   @UseGuards(RolesGuard)
-  @Roles(UserRoles.ADMIN)
+  @Roles(UserRole.ADMIN)
   async findAll(
     @Query() pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<User>> {
@@ -112,7 +88,6 @@ export class UsersController {
     type: Number,
     description: 'Telegram user id',
   })
-  @ApiOkResponse({ type: UserEntity })
   findOne(
     @Param('telegramId') telegramId: string,
     @CurrentUser() user: JwtPayload,
@@ -154,7 +129,7 @@ export class UsersController {
     description: 'Telegram user id',
   })
   @UseGuards(RolesGuard)
-  @Roles(UserRoles.ADMIN)
+  @Roles(UserRole.ADMIN)
   remove(@Param('telegramId') telegramId: string): Promise<User | null> {
     return this.usersService.remove(+telegramId);
   }

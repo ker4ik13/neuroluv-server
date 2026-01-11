@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsBoolean,
   IsDate,
   IsInt,
@@ -24,28 +26,48 @@ export class CreateAlbumDto {
   @IsString()
   description?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, default: null })
   @IsDate()
+  @IsOptional()
   publishedAt?: Date;
 
   @ApiProperty({
     default: false,
   })
   @IsBoolean()
+  @IsOptional()
   isPublished?: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, default: true })
   @IsBoolean()
-  isFree: boolean;
+  @IsOptional()
+  isFree?: boolean;
 
   @ApiProperty()
   @IsBoolean()
-  hasPaidContent: boolean;
+  @IsOptional()
+  hasPaidContent?: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, type: [Number] })
+  @IsArray()
+  @Type(() => Number)
+  @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @IsOptional()
+  photos?: number[];
+
+  @ApiProperty({ required: false, type: [Number] })
+  @IsArray()
+  @Type(() => Number)
+  @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @IsOptional()
+  usersAddedToFavorites?: number[];
+
+  @ApiProperty({ required: true })
   @IsInt()
   @IsPositive()
-  albumCoverId: number;
+  albumCover: number;
 
   @ApiProperty()
   @IsInt()

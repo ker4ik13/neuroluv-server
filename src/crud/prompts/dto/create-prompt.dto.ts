@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
@@ -9,6 +8,7 @@ import {
   IsPositive,
   IsString,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreatePromptDto {
   @ApiProperty()
@@ -31,7 +31,7 @@ export class CreatePromptDto {
   @IsNotEmpty()
   value: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, default: false })
   @IsBoolean()
   @IsOptional()
   isPublished?: boolean;
@@ -49,4 +49,10 @@ export class CreatePromptDto {
   @IsPositive()
   @IsOptional()
   neuralNetworkId?: number;
+
+  @ApiProperty({ required: false, type: Number })
+  @IsInt()
+  @IsPositive()
+  @IsOptional()
+  promptsCollectionId?: number;
 }

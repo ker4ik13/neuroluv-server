@@ -19,20 +19,41 @@ export class PromptsService {
 
   async create(createPromptDto: CreatePromptDto): Promise<Prompt> {
     try {
-      const { usersAddedToFavorites, neuralNetworkId, ...promptData } =
-        createPromptDto;
+      const {
+        usersAddedToFavorites,
+        promptsCollectionId,
+        neuralNetworkId,
+        ...data
+      } = createPromptDto;
 
       return await this.database.prompt.create({
         data: {
-          ...promptData,
+          ...data,
+          ...(data.isPublished === true
+            ? {
+                publishedAt: new Date().toISOString(),
+              }
+            : {
+                publishedAt: null,
+              }),
           neuralNetwork: { connect: { id: neuralNetworkId } },
           ...(usersAddedToFavorites && {
             usersAddedToFavorites: {
               connect: usersAddedToFavorites.map((id) => ({ id })),
             },
           }),
+          ...(promptsCollectionId && {
+            promptsCollection: {
+              connect: {
+                id: promptsCollectionId,
+              },
+            },
+          }),
         },
         include: {
+          _count: true,
+          promptsCollection: true,
+          usersAddedToFavorites: true,
           neuralNetwork: true,
         },
       });
@@ -79,8 +100,10 @@ export class PromptsService {
         id,
       },
       include: {
-        _count: true,
+        promptsCollection: true,
+        usersAddedToFavorites: true,
         neuralNetwork: true,
+        _count: true,
       },
     });
 
@@ -92,19 +115,37 @@ export class PromptsService {
   }
 
   async update(id: number, updatePromptDto: UpdatePromptDto) {
-    const { usersAddedToFavorites, neuralNetworkId, ...promptData } =
-      updatePromptDto;
+    const {
+      usersAddedToFavorites,
+      promptsCollectionId,
+      neuralNetworkId,
+      ...data
+    } = updatePromptDto;
 
     const result = await this.database.prompt.update({
       where: {
         id,
       },
       data: {
-        ...promptData,
+        ...data,
+        ...(data.isPublished === true
+          ? {
+              publishedAt: new Date().toISOString(),
+            }
+          : {
+              publishedAt: null,
+            }),
         ...(neuralNetworkId && {
           neuralNetwork: {
             connect: {
               id: neuralNetworkId,
+            },
+          },
+        }),
+        ...(promptsCollectionId && {
+          promptsCollection: {
+            connect: {
+              id: promptsCollectionId,
             },
           },
         }),
@@ -117,6 +158,8 @@ export class PromptsService {
       },
 
       include: {
+        promptsCollection: true,
+        usersAddedToFavorites: true,
         neuralNetwork: true,
         _count: true,
       },
@@ -130,8 +173,10 @@ export class PromptsService {
         id,
       },
       include: {
-        _count: true,
+        promptsCollection: true,
+        usersAddedToFavorites: true,
         neuralNetwork: true,
+        _count: true,
       },
     });
 

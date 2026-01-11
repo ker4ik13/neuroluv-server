@@ -17,7 +17,7 @@ export class CreateUserDto {
   @Type(() => Number)
   telegramId: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true })
   @IsString()
   @IsNotEmpty()
   firstName: string;

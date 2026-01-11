@@ -1,4 +1,4 @@
 import { PartialType } from '@nestjs/swagger';
-import { AlbumCoverEntity } from '../entities/album-cover.entity';
+import { CreateAlbumCoverDto } from './create-album-cover.dto';
 
-export class UpdateAlbumCoverDto extends PartialType(AlbumCoverEntity) {}
+export class UpdateAlbumCoverDto extends PartialType(CreateAlbumCoverDto) {}

@@ -1,4 +1,4 @@
 import { PartialType } from '@nestjs/swagger';
-import { AlbumEntity } from '../entities/album.entity';
+import { CreateAlbumDto } from './create-album.dto';
 
-export class UpdateAlbumDto extends PartialType(AlbumEntity) {}
+export class UpdateAlbumDto extends PartialType(CreateAlbumDto) {}

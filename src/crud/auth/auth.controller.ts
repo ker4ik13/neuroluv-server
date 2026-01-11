@@ -5,15 +5,18 @@ import {
   Req,
   Res,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { isProd } from '@/lib/utils';
-import { Cookie } from '@/common/decorators';
+import { Cookie, Roles } from '@/common/decorators';
+import { JwtAuthGuard, RolesGuard } from '@/common/guards';
+import { UserRole } from '@prisma/client';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly auth: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   private setAuthCookies(
     res: Response,
@@ -43,7 +46,7 @@ export class AuthController {
     @Body() body: { initData: string },
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result = await this.auth.loginWithTelegram(body.initData);
+    const result = await this.authService.loginWithTelegram(body.initData);
     if (!result) throw new UnauthorizedException('Invalid Telegram initData');
 
     this.setAuthCookies(res, result.accessToken, result.refreshToken);
@@ -62,7 +65,7 @@ export class AuthController {
       throw new UnauthorizedException('Вы не авторизованы');
     }
 
-    const result = await this.auth.refresh(refreshToken);
+    const result = await this.authService.refresh(refreshToken);
     if (!result) throw new UnauthorizedException('Invalid refresh token');
 
     this.setAuthCookies(res, result.accessToken, result.refreshToken);
@@ -72,11 +75,18 @@ export class AuthController {
   @Post('logout')
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const refreshToken = req.cookies?.refresh_token as string | undefined;
-    await this.auth.logout(refreshToken);
+    await this.authService.logout(refreshToken);
 
     res.clearCookie('access_token', { path: '/' });
     res.clearCookie('refresh_token', { path: '/api/auth/refresh' });
 
     return { ok: true };
+  }
+
+  @Post('deleteRevokedTokens')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async deleteRevokedTokens() {
+    return await this.authService.deleteRevokedTokens();
   }
 }

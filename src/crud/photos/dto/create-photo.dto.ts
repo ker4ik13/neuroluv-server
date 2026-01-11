@@ -1,10 +1,8 @@
-import { AlbumEntity } from '@/crud/albums/entities/album.entity';
-import { StyleEntity } from '@/crud/styles/entities/style.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
-  IsDate,
   IsInt,
   IsOptional,
   IsPositive,
@@ -13,16 +11,13 @@ import {
 
 export class CreatePhotoDto {
   @ApiProperty()
-  @IsString()
-  name: string;
+  @IsInt()
+  @IsPositive()
+  file: number;
 
   @ApiProperty()
   @IsString()
   slug: string;
-
-  @ApiProperty()
-  @IsString()
-  ext: string;
 
   @ApiProperty()
   @IsString()
@@ -33,24 +28,42 @@ export class CreatePhotoDto {
   description?: string;
 
   @ApiProperty()
-  @IsDate()
-  publishedAt?: Date;
+  @IsString()
+  prompt: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, default: false })
   @IsBoolean()
-  isPublished: boolean;
+  @IsOptional()
+  isPublished?: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, default: true })
   @IsBoolean()
+  @IsOptional()
   isFree: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, type: [Number] })
   @IsArray()
-  albums: AlbumEntity[];
+  @Type(() => Number)
+  @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @IsOptional()
+  styles?: number[];
 
-  @ApiProperty()
+  @ApiProperty({ required: false, type: [Number] })
   @IsArray()
-  styles: StyleEntity[];
+  @Type(() => Number)
+  @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @IsOptional()
+  albums?: number[];
+
+  @ApiProperty({ required: false, type: [Number] })
+  @IsArray()
+  @Type(() => Number)
+  @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @IsOptional()
+  usersAddedToFavorites?: number[];
 
   @ApiProperty()
   @IsInt()

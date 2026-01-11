@@ -1,4 +1,4 @@
 import { PartialType } from '@nestjs/swagger';
-import { PhotoEntity } from '../entities/photo.entity';
+import { CreatePhotoDto } from './create-photo.dto';
 
-export class UpdatePhotoDto extends PartialType(PhotoEntity) {}
+export class UpdatePhotoDto extends PartialType(CreatePhotoDto) {}

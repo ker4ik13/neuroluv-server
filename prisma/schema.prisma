@@ -48,9 +48,7 @@ model RefreshToken {
 
 model Photo {
     id                    Int            @id @default(autoincrement())
-    name                  String
     slug                  String         @unique
-    ext                   String
     title                 String
     description           String?
     prompt                String
@@ -63,8 +61,10 @@ model Photo {
     albums                Album[]        @relation("album_photos")
     styles                Style[]        @relation("photo_styles")
     usersAddedToFavorites User[]         @relation("favorite_photos")
+    file                  File           @relation(fields: [fileId], references: [id], onDelete: Cascade)
+    fileId                Int            @map("file_id")
     neuralNetwork         NeuralNetwork? @relation(fields: [neuralNetworkId], references: [id], onDelete: SetNull)
-    neuralNetworkId       Int?           @unique @map("neural_network_id")
+    neuralNetworkId       Int?           @map("neural_network_id")
 
     @@map("photos")
 }
@@ -86,26 +86,28 @@ model Album {
     albumCover            AlbumCover     @relation(fields: [albumCoverId], references: [id])
     albumCoverId          Int            @unique @map("album_cover_id")
     neuralNetwork         NeuralNetwork? @relation(fields: [neuralNetworkId], references: [id], onDelete: SetNull)
-    neuralNetworkId       Int?           @unique @map("neural_network_id")
+    neuralNetworkId       Int?           @map("neural_network_id")
 
     @@index([title])
     @@map("albums")
 }
 
 model Prompt {
-    id                    Int            @id @default(autoincrement())
+    id                    Int                @id @default(autoincrement())
     name                  String
-    slug                  String         @unique
+    slug                  String             @unique
     description           String
     value                 String
-    createdAt             DateTime       @default(now()) @map("created_at")
-    updatedAt             DateTime       @updatedAt @map("updated_at")
-    publishedAt           DateTime?      @map("published_at")
-    isPublished           Boolean        @default(false) @map("is_published")
+    createdAt             DateTime           @default(now()) @map("created_at")
+    updatedAt             DateTime           @updatedAt @map("updated_at")
+    publishedAt           DateTime?          @map("published_at")
+    isPublished           Boolean            @default(false) @map("is_published")
     // Relations
-    usersAddedToFavorites User[]         @relation("favorite_prompts")
-    neuralNetwork         NeuralNetwork? @relation(fields: [neuralNetworkId], references: [id], onDelete: SetNull)
-    neuralNetworkId       Int?           @unique @map("neural_network_id")
+    promptsCollection     PromptsCollection? @relation(fields: [promptsCollectionId], references: [id], onDelete: SetNull)
+    promptsCollectionId   Int?               @map("prompts_collection_id")
+    usersAddedToFavorites User[]             @relation("favorite_prompts")
+    neuralNetwork         NeuralNetwork?     @relation(fields: [neuralNetworkId], references: [id], onDelete: SetNull)
+    neuralNetworkId       Int?               @map("neural_network_id")
 
     @@map("prompts")
 }
@@ -122,9 +124,10 @@ model PromptsCollection {
     isFree                Boolean        @default(true) @map("is_free")
     hasPaidContent        Boolean        @default(false) @map("has_paid_content")
     // Relations
+    prompts               Prompt[]
     usersAddedToFavorites User[]         @relation("favorite_prompts_collections")
     neuralNetwork         NeuralNetwork? @relation(fields: [neuralNetworkId], references: [id], onDelete: SetNull)
-    neuralNetworkId       Int?           @unique @map("neural_network_id")
+    neuralNetworkId       Int?           @map("neural_network_id")
 
     @@map("propmts_collections")
 }
@@ -159,15 +162,26 @@ model Style {
 
 model AlbumCover {
     id        Int      @id @default(autoincrement())
-    name      String
-    ext       String
     title     String
     createdAt DateTime @default(now()) @map("created_at")
     updatedAt DateTime @updatedAt @map("updated_at")
     // Relations
     album     Album?   @relation()
+    file      File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+    fileId    Int      @map("file_id")
 
     @@map("album_covers")
+}
+
+model File {
+    id           Int          @id @default(autoincrement())
+    originalname String       @unique
+    mimetype     String
+    size         Int
+    photos       Photo[]
+    albumCovers  AlbumCover[]
+
+    @@map("files")
 }
 
 model Notification {

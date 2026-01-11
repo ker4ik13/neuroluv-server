@@ -1,6 +1,14 @@
-import type { PhotoEntity } from '@/crud/photos';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsDate, IsNotEmpty, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsDate,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsPositive,
+  IsString,
+} from 'class-validator';
 
 export class CreateStyleDto {
   @ApiProperty()
@@ -31,7 +39,11 @@ export class CreateStyleDto {
   @IsDate()
   updatedAt: Date;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, type: [Number] })
   @IsArray()
-  photos: PhotoEntity[];
+  @Type(() => Number)
+  @IsInt({ each: true })
+  @IsPositive({ each: true })
+  @IsOptional()
+  photos?: number[];
 }
